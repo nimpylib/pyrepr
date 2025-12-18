@@ -48,10 +48,13 @@ func raw_repr(us: string
       else:
         addEscaped
 
-func mycontains(s: string, c: char): bool =
-  # NIM-BUG: once using `c in s` when `nimble testC/JS`, it hangs forever
-  for i in s:
-    if i == c: return true
+func mycontains(s: string, c: char): bool{.inline.} =
+  when (NimMajor, NimMinor, NimPatch) >= (2, 2, 4):
+    c in s
+  else:
+    # NIM-BUG: once using `c in s` when `nimble testC/JS`, it hangs forever
+    for i in s:
+      if i == c: return true
 
 template implWith(a; rawImpl; arg_escape127: bool): untyped =
   let us = a  # if a is an expr, avoid `a` being evaluated multiply times 
