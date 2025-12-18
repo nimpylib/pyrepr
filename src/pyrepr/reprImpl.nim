@@ -31,7 +31,7 @@ func Py_addEscapedChar(result: var string, c: char,
       else: push c
     else: push c
 
-func raw_repr(us: string
+func raw_repr(us: openArray[char]
   ,escapeQuotationMark: static[set[char]] = Qq
   ,escape127: static[bool] = false # if to escape char greater than `\127`
 ): string =
@@ -48,28 +48,18 @@ func raw_repr(us: string
       else:
         addEscaped
 
-func mycontains(s: string, c: char): bool{.inline.} =
-  when (NimMajor, NimMinor, NimPatch) >= (2, 2, 4):
-    c in s
-  else:
-    # NIM-BUG: once using `c in s` when `nimble testC/JS`, it hangs forever
-    for i in s:
-      if i == c: return true
-
-template implWith(a; rawImpl; arg_escape127: bool): untyped =
-  let us = a  # if a is an expr, avoid `a` being evaluated multiply times 
+template implWith(us; rawImpl; arg_escape127: bool): untyped =
   when defined(singQuotedStr):
     q & rawImpl(us, escape127=arg_escape127) & q
   else:
-    if us.mycontains Q:
+    if us.contains Q:
       q & rawImpl(us, escapeQuotationMark={q}, escape127=arg_escape127) & q
-    else:
-      if us.mycontains q:
-        Q & rawImpl(us, escapeQuotationMark={Q}, escape127=arg_escape127) & Q
-      else: # neither ' nor "
-        q & rawImpl(us, escape127=arg_escape127) & q
+    elif us.contains q:
+      Q & rawImpl(us, escapeQuotationMark={Q}, escape127=arg_escape127) & Q
+    else: # neither ' nor "
+      q & rawImpl(us, escape127=arg_escape127) & q
 
-func pyrepr*(s: string, escape127: static[bool] = false): string =
+func pyrepr*(s: openArray[char], escape127: static[bool] = false): string =
   ## Python's `repr`
   ## but returns Nim's string.
   ##
@@ -83,5 +73,5 @@ func pyrepr*(s: string, escape127: static[bool] = false): string =
     assert pyrepr("\"") == "'\"'"
   implWith(s, raw_repr, escape127)
 
-func pyreprb*(s: string): string =
+func pyreprb*(s: openArray[char]): string =
   'b' & s.pyrepr(true)
