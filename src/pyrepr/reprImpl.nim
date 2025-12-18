@@ -1,4 +1,5 @@
 
+import ./hex
 const
   q = '\''
   Q = '"'
@@ -21,12 +22,9 @@ func Py_addEscapedChar(result: var string, c: char,
   of '\r': slash 'r'
   of escapeQuotationMark:
     slash c
-  elif c < ' ' or c.ord > 0x7f:
-    const hexdigits = "0123456789abcdef"
+  elif c < ' ' or c > '\x7f':
     slash 'x'
-    let ci = c.ord
-    push hexdigits[(ci and 0xf0) shr 4]
-    push hexdigits[(ci and 0xf)]
+    result.addLowerHex c
   else:
     when defined(useNimCharEsc):
       if c == '\e': result.add "\\x1b"

@@ -1,6 +1,6 @@
 
 import ./pyrepr/[
-  asciiImpl, reprImpl
+  asciiImpl, reprImpl, hex,
 ]
 
-export asciiImpl, reprImpl
+export asciiImpl, reprImpl, hex
