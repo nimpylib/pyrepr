@@ -2,10 +2,19 @@
 
 import std/[strutils, unicode]
 
-func ord1(a: string): int =
-  runnableExamples:
-    assert ord1("123") == ord("1")
-  result = system.int(a.runeAt(0))
+template toHex(r: Rune, n): string =
+  r.uint32.toHex n
+
+template pyasciiImpl(result: var string; us#[: Iterable[Rune] ]#) =
+  for r in us:
+    if r <=% Rune 127:
+      result.add cast[char](r)
+    elif r <=% Rune 0xff:  # is a ascii char
+      result.add r"\x" & r.toHex(2).toLowerAscii
+    elif r <=% Rune 0xffff:
+      result.add r"\u" & r.toHex(4).toLowerAscii
+    else:
+      result.add r"\U" & r.toHex(8)
 
 func pyasciiImpl*(us: string): string =
   ## Python's `ascii` impl
@@ -15,17 +24,4 @@ func pyasciiImpl*(us: string): string =
   ## i.e., this only escape
   ## the non-ASCII characters in `us` using \x, \u, or \U escapes
   ## and doesn't touch ASCII characters.
-  for s in us.utf8:
-    if s.len == 1:  # is a ascii char
-      let
-        c = s[0]
-        cOrd = c.uint8
-      if cOrd > 127:
-        result.add r"\x" & cOrd.toHex(2).toLowerAscii
-      else:
-        result.add c
-    elif s.len < 4:
-      result.add r"\u" & ord1(s).toHex(4).toLowerAscii
-    else:
-      result.add r"\U" & ord1(s).toHex(8)
-
+  result.pyasciiImpl us.runes
