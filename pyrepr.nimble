@@ -2,7 +2,7 @@
 
 version       = "0.1.0"
 author        = "litlighilit"
-description   = "Python-like repr & ascii"
+description   = "Python-like repr, ascii, hex/oct/bin, ..."
 license       = "MIT"
 srcDir        = "src"
 

@@ -1,7 +1,7 @@
 
 
 import std/unicode
-import ./hex
+import ./radix
 
 func add_hex(s: var string, r: Rune, n: int) =
   s.addLowerHex r.uint32, n

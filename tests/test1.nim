@@ -22,3 +22,9 @@ test "hex":
   s.addLowerHex char('A')
   check s == "41"
   check "\x32\x5a\xcb".toLowerHex == "325acb"
+
+test "bin":
+  check toLowerBin(0b01100010u8) == "01100010"
+test "oct":
+  check toLowerOct(0o123u8) == "123"
+
