@@ -15,6 +15,25 @@ test "ascii":
   check pyrepr.pyasciiImpl("Hello, ñ") == r"Hello, \xf1"
   check pyrepr.pyasciiImpl("Emoji: 😊") == r"Emoji: \U0001f60a"
 
+  when true:
+    check ascii("𐀀") == r"'\U00010000'"
+    check ascii("đ") == r"'\u0111'"
+    check ascii("和") == r"'\u548c'"
+    let s = ascii("v我\n\e")
+    when not defined(useNimCharEsc):
+      let rs = r"'v\u6211\n\x1b'"
+    else:
+      let rs = r"'v\u6211\n\e'"
+    check s == rs
+    check ascii("\"") == "'\"'"
+    check ascii("\"'") == "'\"\\''"
+    let s2 = ascii("'")
+    when not defined(singQuotedStr):
+      let rs2 = "\"'\""
+    else:
+      let rs2 = r"'\''"
+    check s2 == rs2
+
 test "hex":
   check toLowerHex(0xABCD'u16) == "abcd"
   check 0x123456.toLowerHex(4) == "3456"
